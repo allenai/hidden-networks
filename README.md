@@ -2,6 +2,7 @@
 
 by Vivek Ramanujan*, Mitchell Wortsman*, Aniruddha Kembhavi, Ali Farhadi, Mohammad Rastegari
 
+arxiv link (TODO)
 <!-- ![alt text](images/teaser.png) -->
 
 <p align="center">
@@ -10,7 +11,7 @@ by Vivek Ramanujan*, Mitchell Wortsman*, Aniruddha Kembhavi, Ali Farhadi, Mohamm
 
 ## Setup
 
-1. Set up a virtualenv with python 3.7.4
+1. Set up a virtualenv with python 3.7.4. You can use pyvenv or conda for this.
 2. Run ```pip install -r requirements.txt``` to get requirements
 3. Create a data directory as a base for all datasets. For example, if your base directory is ```/mnt/datasets``` then imagenet would be located at ```/mnt/datasets/imagenet``` and CIFAR-10 would be located at ```/mnt/datasets/cifar10```
 
@@ -39,7 +40,34 @@ Common example ```override-args``` include ```--multigpu=<gpu-ids seperated by c
 python main.py --config configs/smallscale/conv4/conv4_usc_unsigned.yml \
                --multigpu 0 \
                --name maskonly \
-               --data <path/to/dataset> \
+               --data <path/to/cifar10> \
                --prune-rate 0.5
 ```
 
+### Tracking
+
+```
+tensorboard --logdir runs/ --bind_all
+```
+
+When your experiment is done, a CSV entry will be written (or appended) to ```runs/results.csv```.
+
+## Requirements
+
+Python 3.7.4, CUDA Version 10.1 (also works with 9.2 and 10.0):
+
+```
+absl-py==0.8.1
+grpcio==1.24.3
+Markdown==3.1.1
+numpy==1.17.3
+Pillow==6.2.1
+protobuf==3.10.0
+PyYAML==5.1.2
+six==1.12.0
+tensorboard==2.0.0
+torch==1.3.0
+torchvision==0.4.1
+tqdm==4.36.1
+Werkzeug==0.16.0
+```
