@@ -1,0 +1,27 @@
+# Architecture
+arch: Conv4
+
+# ===== Dataset ===== #
+data: /mnt/xnor-ssd
+set: CIFAR10
+name: conv4_ukn_unsigned
+
+# ===== Learning Rate Policy ======== #
+optimizer: sgd
+lr: 0.1
+lr_policy: cosine_lr
+
+# ===== Network training config ===== #
+epochs: 100
+weight_decay: 0.0001
+momentum: 0.9
+batch_size: 128
+
+# ===== Sparsity =========== #
+conv_type: DNWConv
+bn_type: NonAffineBatchNorm
+prune_rate: -1
+init: kaiming_normal
+
+# ===== Hardware setup ===== #
+workers: 4

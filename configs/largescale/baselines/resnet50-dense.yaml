@@ -1,0 +1,30 @@
+# Architecture
+arch: ResNet50
+
+# ===== Dataset ===== #
+data: /mnt/disk1/datasets
+set: ImageNet
+name: baseline
+
+# ===== Learning Rate Policy ======== #
+optimizer: sgd
+lr: 0.256
+lr_policy: cosine_lr
+warmup_length: 5
+
+# ===== Network training config ===== #
+epochs: 100
+weight_decay: 0.000030517578125
+momentum: 0.875
+batch_size: 256
+label_smoothing: 0.1
+
+# ===== Sparsity =========== #
+conv_type: DenseConv
+bn_type: LearnedBatchNorm
+init: kaiming_normal
+mode: fan_in
+nonlinearity: relu
+
+# ===== Hardware setup ===== #
+workers: 20
