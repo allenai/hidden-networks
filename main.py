@@ -16,7 +16,6 @@ from utils.conv_type import FixedMaskConv, SampleMaskConv
 from utils.logging import AverageMeter, ProgressMeter
 from utils.net_utils import (
     set_model_prune_rate,
-    freeze_model_mask,
     freeze_model_weights,
     save_checkpoint,
     get_lr,
