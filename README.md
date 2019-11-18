@@ -2,7 +2,11 @@
 
 by Vivek Ramanujan*, Mitchell Wortsman*, Aniruddha Kembhavi, Ali Farhadi, Mohammad Rastegari
 
-![alt text](images/teaser.png)
+<!-- ![alt text](images/teaser.png) -->
+
+<p align="center">
+<img width="700" src="images/teaser.png">
+</p>
 
 ## Setup
 
