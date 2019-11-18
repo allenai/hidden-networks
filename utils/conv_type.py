@@ -116,8 +116,6 @@ class SignedMaskConv(nn.Conv2d):
 """
 Sample Based Sparsification
 """
-
-
 class StraightThroughBinomialSample(autograd.Function):
     @staticmethod
     def forward(ctx, mask):
@@ -153,6 +151,10 @@ class SampleMaskConv(nn.Conv2d):
 
         return x
 
+
+"""
+Fixed masks
+"""
 
 class FixedMaskConv(nn.Conv2d):
     def __init__(self, *args, **kwargs):

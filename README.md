@@ -40,7 +40,7 @@ Common example ```override-args``` include ```--multigpu=<gpu-ids seperated by c
 python main.py --config configs/smallscale/conv4/conv4_usc_unsigned.yml \
                --multigpu 0 \
                --name maskonly \
-               --data <path/to/cifar10> \
+               --data <path/to/data-dir> \
                --prune-rate 0.5
 ```
 
@@ -50,7 +50,7 @@ python main.py --config configs/smallscale/conv4/conv4_usc_unsigned.yml \
 tensorboard --logdir runs/ --bind_all
 ```
 
-When your experiment is done, a CSV entry will be written (or appended) to ```runs/results.csv```.
+When your experiment is done, a CSV entry will be written (or appended) to ```runs/results.csv```. Your experiment base directory will automatically be written to ```runs/<config-name>/prune-rate=<prune-rate>/<experiment-name>``` with ```checkpoints/``` and ```logs/``` subdirectories. If your experiment happens to match a previously created experiment base directory then an integer increment will be added to the filepath (eg. ```/0```, ```/1```, etc.). Checkpoints by default will have the first, best, and last models. To change this behavior, use the ```--save-every``` flag. 
 
 ## Requirements
 
