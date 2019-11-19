@@ -12,7 +12,7 @@ import torch.optim
 import torch.utils.data
 import torch.utils.data.distributed
 
-from utils.conv_type import FixedMaskConv, SampleMaskConv
+from utils.conv_type import FixedSubnetConv, SampleSubnetConv
 from utils.logging import AverageMeter, ProgressMeter
 from utils.net_utils import (
     set_model_prune_rate,
@@ -174,25 +174,24 @@ def main_worker(args):
             writer, prefix="diagnostics", global_step=epoch
         )
 
-        if args.conv_type == "ContinuousSparseConv" or args.conv_type == "SampleMaskConv":
+        if args.conv_type == "SampleSubnetConv":
             count = 0
             sum_pr = 0.0
             for n, m in model.named_modules():
-                if isinstance(m, ContinuousSparseConv):
-                    pr = 1 - (m.mask > 0).float().mean().item()
+                if isinstance(m, SampleSubnetConv):
+                    # avg pr across 10 samples
+                    pr = 0.0
+                    for _ in range(10):
+                        pr += (
+                            (torch.rand_like(m.clamped_scores) >= m.clamped_scores)
+                            .float()
+                            .mean()
+                            .item()
+                        )
+                    pr /= 10.0
                     writer.add_scalar("pr/{}".format(n), pr, epoch)
                     sum_pr += pr
                     count += 1
-                elif isinstance(m, SampleMaskConv):
-                    # avg pr across 10 samples
-                    pr = 0.
-                    for _ in range(10):
-                        pr += (torch.rand_like(m.clamped_mask) < m.clamped_mask).float().mean().item()
-                    pr /= 10.
-                    writer.add_scalar("pr/{}".format(n), 1 - pr, epoch)
-                    sum_pr += pr
-                    count += 1
-
 
             args.prune_rate = sum_pr / count
             writer.add_scalar("pr/average", args.prune_rate, epoch)
@@ -212,22 +211,6 @@ def main_worker(args):
         name=args.name,
     )
 
-    if args.conv_type == "LPRMaskConv" or args.conv_type == "ContinuousSparseConv":
-        json_data = {}
-        for n, m in model.named_modules():
-            if isinstance(m, LPRMaskConv) or isinstance(m, ContinuousSparseConv):
-                pr = 1 - (m.mask > 0).float().mean().item()
-                json_data[n] = pr
-                sum_pr += pr
-                count += 1
-
-        json_data["avg"] = sum_pr / count
-        if not os.path.exists("runs/pr_data"):
-            os.mkdir("runs/pr_data")
-
-        with open("runs/pr_data/{}.json".format(args.name), "w") as f:
-            json.dump(json_data, f)
-
 
 def get_trainer(args):
     print(f"=> Using trainer from trainers.{args.trainer}")
@@ -241,7 +224,7 @@ def set_gpu(args, model):
         torch.cuda.set_device(args.gpu)
         model = model.cuda(args.gpu)
     elif args.multigpu is None:
-        device = torch.device('cpu')
+        device = torch.device("cpu")
     else:
         # DataParallel will divide and allocate batch_size to all available GPUs
         print(f"=> Parallelizing on {args.multigpu} gpus")
@@ -302,8 +285,8 @@ def pretrained(args, model):
         print("=> no pretrained weights found at '{}'".format(args.pretrained))
 
     for n, m in model.named_modules():
-        if isinstance(m, FixedMaskConv):
-            m.set_mask()
+        if isinstance(m, FixedSubnetConv):
+            m.set_subnet()
 
 
 def get_dataset(args):
@@ -323,17 +306,18 @@ def get_model(args):
     # applying sparsity to the network
     if (
         args.conv_type != "DenseConv"
-        and args.conv_type != "SampleMaskConv"
-        and args.conv_type != "LPRMaskConv"
+        and args.conv_type != "SampleSubnetConv"
         and args.conv_type != "ContinuousSparseConv"
     ):
         if args.prune_rate < 0:
             raise ValueError("Need to set a positive prune rate")
 
         set_model_prune_rate(model, prune_rate=args.prune_rate)
-        print(f"=> Rough estimate model params {sum(int(p.numel() * (1-args.prune_rate)) for n, p in model.named_parameters() if not n.endswith('mask'))}")
+        print(
+            f"=> Rough estimate model params {sum(int(p.numel() * (1-args.prune_rate)) for n, p in model.named_parameters() if not n.endswith('scores'))}"
+        )
 
-    # freezing the weights if we are only doing mask training
+    # freezing the weights if we are only doing subnet training
     if args.freeze_weights:
         freeze_model_weights(model)
 

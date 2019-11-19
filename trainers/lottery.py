@@ -5,11 +5,11 @@ import tqdm
 from utils.eval_utils import accuracy
 from utils.logging import AverageMeter, ProgressMeter
 from utils.net_utils import (
-    freeze_model_mask,
+    freeze_model_subnet,
     freeze_model_weights,
     set_model_prune_rate,
     unfreeze_model_weights,
-    unfreeze_model_mask,
+    unfreeze_model_subnet,
     save_checkpoint
 )
 
@@ -125,12 +125,12 @@ def validate(val_loader, model, criterion, args, writer, epoch):
 def modifier(args, epoch, model):
     if epoch == 0:
         set_model_prune_rate(model, prune_rate=0.0)
-        freeze_model_mask(model)
+        freeze_model_subnet(model)
         unfreeze_model_weights(model)
 
     elif epoch == 6:
         set_model_prune_rate(model, prune_rate=args.prune_rate)
-        unfreeze_model_mask(model)
+        unfreeze_model_subnet(model)
         freeze_model_weights(model)
 
         save_checkpoint(

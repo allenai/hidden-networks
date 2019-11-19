@@ -39,7 +39,7 @@ Common example ```override-args``` include ```--multigpu=<gpu-ids seperated by c
 ```bash
 python main.py --config configs/smallscale/conv4/conv4_usc_unsigned.yml \
                --multigpu 0 \
-               --name maskonly \
+               --name example \
                --data <path/to/data-dir> \
                --prune-rate 0.5
 ```

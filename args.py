@@ -159,9 +159,9 @@ def parse_arguments():
         help="Whether or not to use nesterov for SGD",
     )
     parser.add_argument(
-        "--random-mask",
+        "--random-subnet",
         action="store_true",
-        help="Whether or not to use a random mask when fine tuning for lottery experiments",
+        help="Whether or not to use a random subnet when fine tuning for lottery experiments",
     )
     parser.add_argument(
         "--one-batch",
@@ -174,7 +174,7 @@ def parse_arguments():
     parser.add_argument(
         "--freeze-weights",
         action="store_true",
-        help="Whether or not to train only mask (this freezes weights)",
+        help="Whether or not to train only subnet (this freezes weights)",
     )
     parser.add_argument("--mode", default="fan_in", help="Weight initialization mode")
     parser.add_argument(
@@ -209,10 +209,10 @@ def parse_arguments():
         "--trainer", type=str, default="default", help="cs, ss, or standard training"
     )
     parser.add_argument(
-        "--mask-init-constant",
+        "--score-init-constant",
         type=float,
         default=None,
-        help="Sample Baseline Mask Init",
+        help="Sample Baseline Subnet Init",
     )
 
     args = parser.parse_args()

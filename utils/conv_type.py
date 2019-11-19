@@ -11,102 +11,45 @@ DenseConv = nn.Conv2d
 from args import args as parser_args
 
 
-class ChooseEdges(autograd.Function):
+class GetSubnet(autograd.Function):
     @staticmethod
-    def forward(ctx, weight, prune_rate):
-        output = weight.clone()
-        _, idx = weight.flatten().abs().sort()
-        p = int(prune_rate * weight.numel())
-        # flat_oup and output access the same memory.
-        flat_oup = output.flatten()
-        flat_oup[idx[:p]] = 0
-        return output
+    def forward(ctx, scores, k):
+        # Get the subnetwork by sorting the scores and using the top k%
+        out = scores.clone()
+        _, idx = scores.flatten().sort()
+        j = int((1 - k) * scores.numel())
 
-    @staticmethod
-    def backward(ctx, grad_output):
-        return grad_output, None
+        # flat_out and out access the same memory.
+        flat_out = out.flatten()
+        flat_out[idx[:j]] = 0
+        flat_out[idx[j:]] = 1
 
-
-class MaskedCeil(autograd.Function):
-    @staticmethod
-    def forward(ctx, mask, prune_rate):
-        output = mask.clone()
-        _, idx = mask.flatten().abs().sort()
-        p = int(prune_rate * mask.numel())
-
-        # flat_oup and output access the same memory.
-        flat_oup = output.flatten()
-        flat_oup[idx[:p]] = 0
-        flat_oup[idx[p:]] = 1
-
-        return output
+        return out
 
     @staticmethod
-    def backward(ctx, grad_outputs):
-        return grad_outputs, None
+    def backward(ctx, g):
+        # send the gradient g straight-through on the backward pass.
+        return g, None
 
 
-class SignedMaskedCeil(autograd.Function):
-    @staticmethod
-    def forward(ctx, mask, prune_rate):
-        output = mask.clone()
-        _, idx = mask.flatten().abs().sort()
-        p = int(prune_rate * mask.numel())
-
-        # flat_oup and output access the same memory.
-        flat_oup = output.flatten()
-        flat_oup[idx[:p]] = 0
-        flat_oup[idx[p:]] = 1
-
-        return output * mask.sign()
-
-    @staticmethod
-    def backward(ctx, grad_outputs):
-        return grad_outputs, None
-
-
-# Not learning weights, learning mask
-class MaskConv(nn.Conv2d):
+# Not learning weights, finding subnet
+class SubnetConv(nn.Conv2d):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.mask = nn.Parameter(torch.Tensor(self.weight.size()))
-        nn.init.kaiming_uniform_(self.mask, a=math.sqrt(5))
+        self.scores = nn.Parameter(torch.Tensor(self.weight.size()))
+        nn.init.kaiming_uniform_(self.scores, a=math.sqrt(5))
 
     def set_prune_rate(self, prune_rate):
         self.prune_rate = prune_rate
 
     @property
-    def clamped_mask(self):
-        return self.mask.abs()
+    def clamped_scores(self):
+        return self.scores.abs()
 
     def forward(self, x):
-        mask = MaskedCeil.apply(self.clamped_mask, self.prune_rate)
-        w = self.weight * mask
-        x = F.conv2d(
-            x, w, self.bias, self.stride, self.padding, self.dilation, self.groups
-        )
-        return x
-
-
-# Not learning weights, learning mask
-class SignedMaskConv(nn.Conv2d):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.mask = nn.Parameter(torch.Tensor(self.weight.size()))
-        nn.init.kaiming_uniform_(self.mask, a=math.sqrt(5))
-
-    def set_prune_rate(self, prune_rate):
-        self.prune_rate = prune_rate
-
-    @property
-    def clamped_mask(self):
-        return self.mask
-
-    def forward(self, x):
-        mask = SignedMaskedCeil.apply(self.clamped_mask, self.prune_rate)
-        w = self.weight * mask
+        subnet = GetSubnet.apply(self.clamped_scores, self.prune_rate)
+        w = self.weight * subnet
         x = F.conv2d(
             x, w, self.bias, self.stride, self.padding, self.dilation, self.groups
         )
@@ -116,10 +59,12 @@ class SignedMaskConv(nn.Conv2d):
 """
 Sample Based Sparsification
 """
+
+
 class StraightThroughBinomialSample(autograd.Function):
     @staticmethod
-    def forward(ctx, mask):
-        output = (torch.rand_like(mask) < mask).float()
+    def forward(ctx, scores):
+        output = (torch.rand_like(scores) < scores).float()
         return output
 
     @staticmethod
@@ -127,24 +72,26 @@ class StraightThroughBinomialSample(autograd.Function):
         return grad_outputs, None
 
 
-# Not learning weights, learning mask
-class SampleMaskConv(nn.Conv2d):
+# Not learning weights, finding subnet
+class SampleSubnetConv(nn.Conv2d):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.mask = nn.Parameter(torch.Tensor(self.weight.size()))
-        if parser_args.mask_init_constant is not None:
-            self.mask.data = torch.ones_like(self.mask) * c
+        self.scores = nn.Parameter(torch.Tensor(self.weight.size()))
+        if parser_args.score_init_constant is not None:
+            self.scores.data = (
+                torch.ones_like(self.scores) * parser_args.score_init_constant
+            )
         else:
-            nn.init.kaiming_uniform_(self.mask, a=math.sqrt(5))
+            nn.init.kaiming_uniform_(self.scores, a=math.sqrt(5))
 
     @property
-    def clamped_mask(self):
-        return torch.sigmoid(self.mask)
+    def clamped_scores(self):
+        return torch.sigmoid(self.scores)
 
     def forward(self, x):
-        mask = StraightThroughBinomialSample.apply(self.clamped_mask)
-        w = self.weight * mask
+        subnet = StraightThroughBinomialSample.apply(self.clamped_scores)
+        w = self.weight * subnet
         x = F.conv2d(
             x, w, self.bias, self.stride, self.padding, self.dilation, self.groups
         )
@@ -153,74 +100,41 @@ class SampleMaskConv(nn.Conv2d):
 
 
 """
-Fixed masks
+Fixed subnets 
 """
 
-class FixedMaskConv(nn.Conv2d):
+
+class FixedSubnetConv(nn.Conv2d):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.mask = nn.Parameter(torch.Tensor(self.weight.size()))
-        nn.init.kaiming_uniform_(self.mask, a=math.sqrt(5))
+        self.scores = nn.Parameter(torch.Tensor(self.weight.size()))
+        nn.init.kaiming_uniform_(self.scores, a=math.sqrt(5))
 
     def set_prune_rate(self, prune_rate):
         self.prune_rate = prune_rate
         print("prune_rate_{}".format(self.prune_rate))
 
-    def set_mask(self):
-        output = self.clamped_mask().clone()
-        _, idx = self.clamped_mask().flatten().abs().sort()
-        p = int(self.prune_rate * self.clamped_mask().numel())
+    def set_subnet(self):
+        output = self.clamped_scores().clone()
+        _, idx = self.clamped_scores().flatten().abs().sort()
+        p = int(self.prune_rate * self.clamped_scores().numel())
         flat_oup = output.flatten()
         flat_oup[idx[:p]] = 0
         flat_oup[idx[p:]] = 1
-        self.mask = torch.nn.Parameter(output)
-        self.mask.requires_grad = False
+        self.scores = torch.nn.Parameter(output)
+        self.scores.requires_grad = False
 
-    def clamped_mask(self):
-        return self.mask.abs()
+    def clamped_scores(self):
+        return self.scores.abs()
 
-    def get_weight(self):
-        return self.weight * self.mask
+    def get_subnet(self):
+        return self.weight * self.scores
 
     def forward(self, x):
-        w = self.get_weight()
+        w = self.get_subnet()
         x = F.conv2d(
             x, w, self.bias, self.stride, self.padding, self.dilation, self.groups
         )
         return x
 
-
-class FixedSignedMaskConv(nn.Conv2d):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.mask = nn.Parameter(torch.Tensor(self.weight.size()))
-        nn.init.kaiming_uniform_(self.mask, a=math.sqrt(5))
-
-    def set_prune_rate(self, prune_rate):
-        self.prune_rate = prune_rate
-        print("prune_rate_{}".format(self.prune_rate))
-
-    def set_mask(self):
-        with torch.no_grad():
-            output = self.mask.clone()
-            _, idx = self.mask.flatten().abs().sort()
-            p = int(self.prune_rate * self.clamped_mask().numel())
-            flat_oup = output.flatten()
-            flat_oup[idx[:p]] = 0
-            flat_oup[idx[p:]] = 1
-            output *= self.mask.sign()
-
-        self.mask = torch.nn.Parameter(output)
-        self.mask.requires_grad = False
-
-    def get_weight(self):
-        return self.weight * self.mask
-
-    def forward(self, x):
-        w = self.get_weight()
-        x = F.conv2d(
-            x, w, self.bias, self.stride, self.padding, self.dilation, self.groups
-        )
-        return x

@@ -7,7 +7,7 @@ set: ImageNet
 
 # ===== Learning Rate Policy ======== #
 optimizer: sgd
-lr: 0.256
+lr: 0.1
 lr_policy: cosine_lr
 warmup_length: 5
 
@@ -19,13 +19,14 @@ batch_size: 256
 label_smoothing: 0.1
 
 # ===== Sparsity =========== #
-conv_type: MaskConv
+conv_type: SubnetConv
 bn_type: NonAffineBatchNorm
 freeze_weights: True
 prune_rate: -1 # Override
-init: kaiming_normal
+init: signed_constant
 mode: fan_in
 nonlinearity: relu
+scale_fan: True
 
 # ===== Hardware setup ===== #
 workers: 20

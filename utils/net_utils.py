@@ -47,16 +47,16 @@ def freeze_model_weights(model):
                     m.bias.grad = None
 
 
-def freeze_model_mask(model):
-    print("=> Freezing model mask")
+def freeze_model_subnet(model):
+    print("=> Freezing model subnet")
 
     for n, m in model.named_modules():
-        if hasattr(m, "mask"):
-            m.mask.requires_grad = False
-            print(f"==> No gradient to {n}.mask")
-            if m.mask.grad is not None:
-                print(f"==> Setting gradient of {n}.mask to None")
-                m.mask.grad = None
+        if hasattr(m, "scores"):
+            m.scores.requires_grad = False
+            print(f"==> No gradient to {n}.scores")
+            if m.scores.grad is not None:
+                print(f"==> Setting gradient of {n}.scores to None")
+                m.scores.grad = None
 
 
 def unfreeze_model_weights(model):
@@ -71,13 +71,13 @@ def unfreeze_model_weights(model):
                 m.bias.requires_grad = True
 
 
-def unfreeze_model_mask(model):
-    print("=> Unfreezing model mask")
+def unfreeze_model_subnet(model):
+    print("=> Unfreezing model subnet")
 
     for n, m in model.named_modules():
-        if hasattr(m, "mask"):
-            print(f"==> Gradient to {n}.mask")
-            m.mask.requires_grad = True
+        if hasattr(m, "scores"):
+            print(f"==> Gradient to {n}.scores")
+            m.scores.requires_grad = True
 
 
 def set_model_prune_rate(model, prune_rate):
@@ -125,14 +125,14 @@ class LabelSmoothing(nn.Module):
         return loss.mean()
 
 
-class MaskL1RegLoss(nn.Module):
+class SubnetL1RegLoss(nn.Module):
     def __init__(self):
         super().__init__()
 
     def forward(self, model, temperature=1.0):
         l1_accum = 0.0
         for n, p in model.named_parameters():
-            if n.endswith("mask"):
+            if n.endswith("scores"):
                 l1_accum += (p*temperature).sigmoid().sum()
 
         return l1_accum

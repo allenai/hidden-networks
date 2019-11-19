@@ -18,7 +18,7 @@ momentum: 0.9
 batch_size: 256
 
 # ===== Sparsity =========== #
-conv_type: SampleMaskConv 
+conv_type: SampleSubnetConv 
 bn_type: NonAffineBatchNorm
 freeze_weights: True
 prune_rate: -1

@@ -1,5 +1,5 @@
 # Architecture
-arch: WideResNet101_2
+arch: ResNet101
 
 # ===== Dataset ===== #
 data: /mnt/disk1/datasets
@@ -19,11 +19,11 @@ batch_size: 256
 label_smoothing: 0.1
 
 # ===== Sparsity =========== #
-conv_type: MaskConv
+conv_type: SubnetConv
 bn_type: NonAffineBatchNorm
 freeze_weights: True
 prune_rate: -1 # Override
-init: kaiming_normal
+init: signed_constant
 mode: fan_in
 nonlinearity: relu
 

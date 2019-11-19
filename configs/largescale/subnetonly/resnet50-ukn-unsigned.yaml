@@ -19,14 +19,13 @@ batch_size: 256
 label_smoothing: 0.1
 
 # ===== Sparsity =========== #
-conv_type: MaskConv
+conv_type: SubnetConv
 bn_type: NonAffineBatchNorm
 freeze_weights: True
 prune_rate: -1 # Override
 init: kaiming_normal
 mode: fan_in
 nonlinearity: relu
-scale_fan: True
 
 # ===== Hardware setup ===== #
 workers: 20

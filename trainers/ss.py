@@ -4,7 +4,7 @@ import tqdm
 
 from utils.eval_utils import accuracy
 from utils.logging import AverageMeter, ProgressMeter
-from utils.net_utils import MaskL1RegLoss
+from utils.net_utils import SubnetL1RegLoss
 
 
 __all__ = ["train", "validate", "modifier"]
@@ -28,7 +28,7 @@ def train(train_loader, model, criterion, optimizer, epoch, args, writer):
     batch_size = train_loader.batch_size
     num_batches = len(train_loader)
     end = time.time()
-    l1reg = MaskL1RegLoss(temperature=1.0)
+    l1reg = SubnetL1RegLoss(temperature=1.0)
 
     for i, (images, target) in tqdm.tqdm(
         enumerate(train_loader), ascii=True, total=len(train_loader)
