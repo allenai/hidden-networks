@@ -1,4 +1,4 @@
-# Code release for "What's hidden in a randomly weighted neural network?"
+# What's hidden in a randomly weighted neural network?
 
 by Vivek Ramanujan*, Mitchell Wortsman*, Aniruddha Kembhavi, Ali Farhadi, Mohammad Rastegari
 
