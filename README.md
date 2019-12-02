@@ -2,7 +2,7 @@
 
 by Vivek Ramanujan*, Mitchell Wortsman*, Aniruddha Kembhavi, Ali Farhadi, Mohammad Rastegari
 
-arxiv link (TODO)
+arxiv link: https://arxiv.org/abs/1911.13299
 <!-- ![alt text](images/teaser.png) -->
 
 <p align="center">
