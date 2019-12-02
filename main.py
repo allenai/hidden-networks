@@ -220,6 +220,8 @@ def get_trainer(args):
 
 
 def set_gpu(args, model):
+    assert torch.cuda.is_available(), "CPU-only experiments currently unsupported"
+
     if args.gpu is not None:
         torch.cuda.set_device(args.gpu)
         model = model.cuda(args.gpu)
