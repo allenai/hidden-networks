@@ -23,7 +23,7 @@ We use config files located in the ```configs/``` folder to organize our experim
 python main.py --config <path/to/config> <override-args>
 ```
 
-Common example ```override-args``` include ```--multigpu=<gpu-ids seperated by commas, no spaces>``` to run on GPUs, and ```--prune-rate``` to set the prune rate ```(1 - weights_remaining)``` for an experiment. Run ```python main --help``` for more details.
+Common example ```override-args``` include ```--multigpu=<gpu-ids seperated by commas, no spaces>``` to run on GPUs, and ```--prune-rate``` to set the prune rate, ```weights_remaining``` in our paper, for an experiment. Run ```python main --help``` for more details.
 
 ### YAML Name Key
 
