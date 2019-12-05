@@ -15,7 +15,7 @@ arxiv link: https://arxiv.org/abs/1911.13299
 2. Run ```pip install -r requirements.txt``` to get requirements
 3. Create a data directory as a base for all datasets. For example, if your base directory is ```/mnt/datasets``` then imagenet would be located at ```/mnt/datasets/imagenet``` and CIFAR-10 would be located at ```/mnt/datasets/cifar10```
 
-## Starting an Experiment
+## Starting an Experiment 
 
 We use config files located in the ```configs/``` folder to organize our experiments. The basic setup for any experiment is:
 
@@ -44,6 +44,18 @@ python main.py --config configs/smallscale/conv4/conv4_usc_unsigned.yml \
                --prune-rate 0.5
 ```
 
+### Expected Results and Pretrained Models
+
+| Model  | Params | % Weights Remaining | Initialization | Accuracy (ImageNet) |
+| :-------------: | :-------------: | :-------------: | :-------------: | :-------------: |
+| [ResNet-50](https://prior-pretrained-models.s3-us-west-2.amazonaws.com/hidden-networks/resnet50-ukn-unsigned.pth)  |  7.7M  | 30% | Kaiming Normal | 61.7 |
+| [ResNet-50](https://prior-pretrained-models.s3-us-west-2.amazonaws.com/hidden-networks/resnet50_usc_unsigned.pth)  |  7.7M | 30% | Signed Kaiming Constant | 68.6 |
+| [ResNet-101](https://prior-pretrained-models.s3-us-west-2.amazonaws.com/hidden-networks/resnet101-ukn-unsigned.pth)  |  13.3M | 30% | Kaiming Normal | 66.15 |
+| [ResNet-101](https://prior-pretrained-models.s3-us-west-2.amazonaws.com/hidden-networks/resnet101-usc-unsigned.pth)  |  13.3M | 30% | Signed Kaiming Constant | 72.3 |
+| [Wide ResNet-50](https://prior-pretrained-models.s3-us-west-2.amazonaws.com/hidden-networks/wideresnet50-ukn-unsigned.pth)  |  20.6M | 30% | Kaiming Normal | 67.9 |
+| [Wide ResNet-50](https://prior-pretrained-models.s3-us-west-2.amazonaws.com/hidden-networks/wideresnet50-usc-unsigned.pth)  |  20.6M | 30% | Signed Kaiming Constant | 73.3 |
+
+
 ### Tracking
 
 ```
@@ -51,6 +63,7 @@ tensorboard --logdir runs/ --bind_all
 ```
 
 When your experiment is done, a CSV entry will be written (or appended) to ```runs/results.csv```. Your experiment base directory will automatically be written to ```runs/<config-name>/prune-rate=<prune-rate>/<experiment-name>``` with ```checkpoints/``` and ```logs/``` subdirectories. If your experiment happens to match a previously created experiment base directory then an integer increment will be added to the filepath (eg. ```/0```, ```/1```, etc.). Checkpoints by default will have the first, best, and last models. To change this behavior, use the ```--save-every``` flag. 
+
 
 ## Requirements
 
