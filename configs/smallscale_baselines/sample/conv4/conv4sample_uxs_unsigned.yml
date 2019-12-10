@@ -1,0 +1,30 @@
+# Architecture
+arch: Conv4
+
+# ===== Dataset ===== #
+data: /mnt
+set: CIFAR10
+name: conv4sample_uxs_unsigned
+
+# ===== Learning Rate Policy ======== #
+optimizer: sgd
+lr: 200
+lr_policy: cosine_lr
+
+# ===== Network training config ===== #
+epochs: 100
+weight_decay: 0 #0.0001
+momentum: 0.9
+batch_size: 128
+
+# ===== Sparsity =========== #
+conv_type: SampleSubnetConv
+bn_type: NonAffineBatchNorm
+freeze_weights: True
+prune_rate: -1
+init: xavier_constant
+# scale_fan: True
+
+# ===== Hardware setup ===== #
+workers: 4
+log_dir: /home/vivekr/prod/hidden-networks/runs/baseline

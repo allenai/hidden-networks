@@ -1,0 +1,25 @@
+# Architecture
+arch: cResNet18
+
+# ===== Dataset ===== #
+data: /mnt
+set: CIFAR10
+name: cifar
+
+# ===== Learning Rate Policy ======== #
+optimizer: sgd
+lr: 0.1
+lr_policy: cosine_lr
+
+# ===== Network training config ===== #
+epochs: 100
+weight_decay: 0.0001
+momentum: 0.9
+batch_size: 128
+
+# ===== Sparsity =========== #
+conv_type: RGConv
+bn_type: LearnedBatchNorm
+
+# ===== Hardware setup ===== #
+workers: 4

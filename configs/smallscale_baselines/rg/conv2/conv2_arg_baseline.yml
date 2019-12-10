@@ -1,0 +1,23 @@
+# Architecture
+arch: Conv2
+
+# ===== Dataset ===== #
+data: /mnt
+set: CIFAR10
+name: conv2_arg_baseline
+
+# ===== Learning Rate Policy ======== #
+optimizer: adam
+lr: 0.0002
+
+# ===== Network training config ===== #
+epochs: 100
+batch_size: 60
+
+# ===== Sparsity =========== #
+conv_type: RGConv
+bn_type: NonAffineBatchNorm
+
+# ===== Hardware setup ===== #
+workers: 4
+log_dir: /home/vivekr/prod/hidden-networks/runs/baseline

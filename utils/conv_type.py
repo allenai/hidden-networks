@@ -72,6 +72,24 @@ class StraightThroughBinomialSample(autograd.Function):
         return grad_outputs, None
 
 
+class BinomialSample(autograd.Function):
+    @staticmethod
+    def forward(ctx, scores):
+        output = (torch.rand_like(scores) < scores).float()
+        ctx.save_for_backward(output)
+
+        return output
+
+    @staticmethod
+    def backward(ctx, grad_outputs):
+        subnet, = ctx.saved_variables
+
+        grad_inputs = grad_outputs.clone()
+        grad_inputs[subnet == 0.0] = 0.0
+
+        return grad_inputs, None
+
+
 # Not learning weights, finding subnet
 class SampleSubnetConv(nn.Conv2d):
     def __init__(self, *args, **kwargs):
@@ -90,7 +108,7 @@ class SampleSubnetConv(nn.Conv2d):
         return torch.sigmoid(self.scores)
 
     def forward(self, x):
-        subnet = StraightThroughBinomialSample.apply(self.clamped_scores)
+        subnet = BinomialSample.apply(self.clamped_scores)
         w = self.weight * subnet
         x = F.conv2d(
             x, w, self.bias, self.stride, self.padding, self.dilation, self.groups

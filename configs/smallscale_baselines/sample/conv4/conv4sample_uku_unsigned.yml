@@ -1,0 +1,28 @@
+# Architecture
+arch: Conv4
+baseline: cs
+
+# ===== Dataset ===== #
+data: /mnt/xnor-ssd
+set: CIFAR10
+name: standard_init
+
+# ===== Learning Rate Policy ======== #
+optimizer: sgd
+lr: 50.0
+lr_policy: constant_lr
+
+# ===== Network training config ===== #
+epochs: 100
+momentum: 0.9
+batch_size: 128
+
+# ===== Sparsity =========== #
+conv_type: SampleSubnetConv
+bn_type: NonAffineBatchNorm
+freeze_weights: True
+prune_rate: -1
+init: signed_constant
+
+# ===== Hardware setup ===== #
+workers: 4

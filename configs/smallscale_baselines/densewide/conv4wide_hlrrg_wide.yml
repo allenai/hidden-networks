@@ -1,0 +1,26 @@
+# Architecture
+arch: Conv4Wide
+
+# ===== Dataset ===== #
+data: /mnt
+set: CIFAR10
+name: conv4wide_hlrrg_wide
+
+# ===== Learning Rate Policy ======== #
+optimizer: sgd
+lr: 0.1
+lr_policy: cosine_lr
+
+# ===== Network training config ===== #
+epochs: 100
+weight_decay: 0.0001
+momentum: 0.9
+batch_size: 128
+
+# ===== Sparsity =========== #
+conv_type: RGConv
+bn_type: NonAffineBatchNorm
+
+# ===== Hardware setup ===== #
+workers: 4
+log_dir: /home/vivekr/prod/hidden-networks/runs/baseline
