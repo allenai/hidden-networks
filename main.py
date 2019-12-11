@@ -29,7 +29,6 @@ import importlib
 
 import data
 import models
-import json
 
 
 def main():

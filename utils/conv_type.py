@@ -1,4 +1,3 @@
-from torch.nn import init
 import torch
 import torch.autograd as autograd
 import torch.nn as nn
@@ -6,9 +5,10 @@ import torch.nn.functional as F
 
 import math
 
-DenseConv = nn.Conv2d
-
 from args import args as parser_args
+
+
+DenseConv = nn.Conv2d
 
 
 class GetSubnet(autograd.Function):

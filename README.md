@@ -56,6 +56,8 @@ python main.py --config configs/smallscale/conv4/conv4_usc_unsigned.yml \
 | [Wide ResNet-50](https://prior-pretrained-models.s3-us-west-2.amazonaws.com/hidden-networks/wideresnet50-usc-unsigned.pth)  |  20.6M | 30% | Signed Kaiming Constant | 73.3 |
 
 
+To use a pretrained model use the ```--pretrained=<path/to/pretrained-checkpoint>``` flag.
+
 ### Tracking
 
 ```
