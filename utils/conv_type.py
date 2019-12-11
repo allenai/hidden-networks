@@ -108,7 +108,7 @@ class SampleSubnetConv(nn.Conv2d):
         return torch.sigmoid(self.scores)
 
     def forward(self, x):
-        subnet = BinomialSample.apply(self.clamped_scores)
+        subnet = StraightThroughBinomialSample.apply(self.clamped_scores)
         w = self.weight * subnet
         x = F.conv2d(
             x, w, self.bias, self.stride, self.padding, self.dilation, self.groups
