@@ -1,0 +1,31 @@
+# Architecture
+arch: WideResNet50_2
+
+# ===== Dataset ===== #
+data: /mnt/xnor-ssd
+set: ImageNet
+pretrained: /mnt/xnor-sdd/models/wideresnet50-usc-unsigned.pth
+name: lottery
+
+# ===== Learning Rate Policy ======== #
+optimizer: sgd
+lr: 0.256
+lr_policy: cosine_lr
+
+# ===== Network training config ===== #
+epochs: 100
+weight_decay: 0.000030517578125
+momentum: 0.875
+batch_size: 256
+label_smoothing: 0.1
+
+# ===== Sparsity =========== #
+conv_type: FixedSubnetConv 
+bn_type: LearnedBatchNorm
+prune_rate: 0.3 # Override
+init: signed_constant
+mode: fan_in
+nonlinearity: relu
+
+# ===== Hardware setup ===== #
+workers: 20
