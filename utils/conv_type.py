@@ -131,12 +131,11 @@ class FixedSubnetConv(nn.Conv2d):
 
     def set_prune_rate(self, prune_rate):
         self.prune_rate = prune_rate
-        print("prune_rate_{}".format(self.prune_rate))
 
     def set_subnet(self):
         output = self.clamped_scores().clone()
         _, idx = self.clamped_scores().flatten().abs().sort()
-        p = int(self.prune_rate * self.clamped_scores().numel())
+        p = int((1 - self.prune_rate) * self.clamped_scores().numel())
         flat_oup = output.flatten()
         flat_oup[idx[:p]] = 0
         flat_oup[idx[p:]] = 1

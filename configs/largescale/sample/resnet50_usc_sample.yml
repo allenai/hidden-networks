@@ -22,7 +22,7 @@ conv_type: SampleSubnetConv
 bn_type: NonAffineBatchNorm
 freeze_weights: True
 prune_rate: -1
-init: kaiming_normal
+init: signed_constant 
 # scale_fan: True
 
 # ===== Hardware setup ===== #

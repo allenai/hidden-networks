@@ -315,7 +315,7 @@ def get_model(args):
 
         set_model_prune_rate(model, prune_rate=args.prune_rate)
         print(
-            f"=> Rough estimate model params {sum(int(p.numel() * (1-args.prune_rate)) for n, p in model.named_parameters() if not n.endswith('scores'))}"
+            f"=> Rough estimate model params {sum(int(p.numel() * args.prune_rate) for n, p in model.named_parameters() if not n.endswith('scores'))}"
         )
 
     # freezing the weights if we are only doing subnet training
