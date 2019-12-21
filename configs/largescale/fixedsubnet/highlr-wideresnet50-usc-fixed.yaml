@@ -11,6 +11,7 @@ name: lottery
 optimizer: sgd
 lr: 0.256
 lr_policy: cosine_lr
+warmup_length: 5
 
 # ===== Network training config ===== #
 epochs: 100
