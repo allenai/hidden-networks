@@ -4,7 +4,7 @@ arch: ResNet50
 # ===== Dataset ===== #
 data: /mnt/xnor-ssd
 set: ImageNet
-pretrained: /mnt/xnor-ssd/models/resnet50-usc-unsigned.pth
+pretrained: /mnt/xnor-ssd/models/resnet50_usc_unsigned.pth
 name: lottery
 
 # ===== Learning Rate Policy ======== #
