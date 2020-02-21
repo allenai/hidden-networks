@@ -43,9 +43,7 @@ class SupermaskConv(nn.Conv2d):
         self.scores = nn.Parameter(torch.Tensor(self.weight.size()))
         nn.init.kaiming_uniform_(self.scores, a=math.sqrt(5))
 
-        # NOTE: initialize the weights like this. It's better but depends on your problem.
-        # If something isn't working it might be due to initialization.
-        # Since weights aren't changing it's quite important.
+        # NOTE: initialize the weights like this.
         nn.init.kaiming_normal_(self.weight, mode="fan_in", nonlinearity="relu")
 
         # NOTE: turn the gradient on the weights off
@@ -67,9 +65,7 @@ class SupermaskLinear(nn.Linear):
         self.scores = nn.Parameter(torch.Tensor(self.weight.size()))
         nn.init.kaiming_uniform_(self.scores, a=math.sqrt(5))
 
-        # NOTE: initialize the weights like this. It's better but depends on your problem.
-        # If something isn't working it might be due to initialization.
-        # Since weights aren't changing it's quite important.
+        # NOTE: initialize the weights like this.
         nn.init.kaiming_normal_(self.weight, mode="fan_in", nonlinearity="relu")
 
         # NOTE: turn the gradient on the weights off
@@ -81,9 +77,8 @@ class SupermaskLinear(nn.Linear):
         return F.linear(x, w, self.bias)
         return x
 
-# NOTE: not used here but you want NON-AFFINE Normalization!
-# You don't want learned parameters for your nomralization layer
-# This is what we use instead of regular batch norm.
+# NOTE: not used here but we use NON-AFFINE Normalization!
+# So there is no learned parameters for your nomralization layer.
 class NonAffineBatchNorm(nn.BatchNorm2d):
     def __init__(self, dim):
         super(NonAffineBatchNorm, self).__init__(dim, affine=False)
