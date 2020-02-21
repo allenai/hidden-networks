@@ -9,6 +9,10 @@ arxiv link: https://arxiv.org/abs/1911.13299
 <img width="700" src="images/teaser.png">
 </p>
 
+## Simple One File Example
+
+Check out `simple_mnist_example.py`.
+
 ## Setup
 
 1. Set up a virtualenv with python 3.7.4. You can use pyvenv or conda for this.
