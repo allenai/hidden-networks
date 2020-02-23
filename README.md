@@ -9,9 +9,23 @@ arxiv link: https://arxiv.org/abs/1911.13299
 <img width="700" src="images/teaser.png">
 </p>
 
-## Simple One File Example
+## News & Updates
 
-Check out `simple_mnist_example.py`.
+- Simple one file example! Check out `simple_mnist_example.py`.
+- Faster version of `GetSubNet` written by [Suchin Gururangan](https://suchin.io/)! Feel free to replace [the old version](https://github.com/allenai/hidden-networks/blob/master/utils/conv_type.py#L14) with this:
+```python
+class GetSubnetFaster(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, scores, zeros, ones, sparsity):
+        # Get the supermask by sorting the scores and using the top k%
+        k_val = percentile(scores, sparsity*100)
+        return torch.where(scores < k_val, zeros.to(scores.device), ones.to(scores.device))
+
+    @staticmethod
+    def backward(ctx, g):
+        # send the gradient g straight-through on the backward pass.
+        return g, None, None, None
+```
 
 ## Setup
 
