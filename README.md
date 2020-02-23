@@ -22,7 +22,6 @@ class GetSubnetFaster(torch.autograd.Function):
 
     @staticmethod
     def backward(ctx, g):
-        # send the gradient g straight-through on the backward pass.
         return g, None, None, None
 ```
 
