@@ -14,6 +14,10 @@ arxiv link: https://arxiv.org/abs/1911.13299
 - Simple one file example! Check out `simple_mnist_example.py`.
 - Faster version of `GetSubNet` written by [Suchin Gururangan](https://suchin.io/)! Feel free to replace [the old version](https://github.com/allenai/hidden-networks/blob/master/utils/conv_type.py#L14) with this:
 ```python
+def percentile(t, q):
+    k = 1 + round(.01 * float(q) * (t.numel() - 1))
+    return t.view(-1).kthvalue(k).values.item()
+    
 class GetSubnetFaster(torch.autograd.Function):
     @staticmethod
     def forward(ctx, scores, zeros, ones, sparsity):
