@@ -17,7 +17,6 @@ arxiv link: https://arxiv.org/abs/1911.13299
 class GetSubnetFaster(torch.autograd.Function):
     @staticmethod
     def forward(ctx, scores, zeros, ones, sparsity):
-        # Get the supermask by sorting the scores and using the top k%
         k_val = percentile(scores, sparsity*100)
         return torch.where(scores < k_val, zeros.to(scores.device), ones.to(scores.device))
 
