@@ -23,11 +23,12 @@ class GetSubnet(autograd.Function):
         j = int((1 - k) * scores.numel())
 
         # flat_out and out access the same memory.
-        flat_out = out.flatten()
+        w_shape = out.shape
+        flat_out = out.view(-1)
         flat_out[idx[:j]] = 0
         flat_out[idx[j:]] = 1
 
-        return out
+        return flat_out.view(*w_shape)
 
     @staticmethod
     def backward(ctx, g):
